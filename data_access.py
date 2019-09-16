@@ -1,11 +1,11 @@
 from functions import remove_punctuation
 import pandas as pd
 
-def get_music_bio(V, D, csv_path):
-    files = pd.read_csv(csv_path).to_dict('resutls')
-    D = D if D else len(files)
+def get_music_bio(params):
+    files = pd.read_csv(params['csv_path']).to_dict('resutls')
+    params['D'] = params['D'] if params['D'] else len(files)
     all_word_counts = {}
-    for f in files[:D]:
+    for f in files[:params['D']]:
         line = f['content']
         s = remove_punctuation(line).lower().split()
         if len(s) > 1:
@@ -14,8 +14,8 @@ def get_music_bio(V, D, csv_path):
                     all_word_counts[word] = 0
                 else:
                     all_word_counts[word] += 1
-    V = V if V else len(all_word_counts)
-    V = min(V, len(all_word_counts))
+    params['V'] = params['V'] if params['V'] else len(all_word_counts)
+    V = min(params['V'], len(all_word_counts))
     all_word_counts_idx = all_word_counts
     all_word_counts = sorted(all_word_counts.items(), key=lambda x: x[1], reverse=True)
     top_words = [w for w, count in all_word_counts[:V-1]] + ['<UNK>']
@@ -25,8 +25,7 @@ def get_music_bio(V, D, csv_path):
     unk = word2idx['<UNK>']
     sents = []
     sentences = []
-    print(len(files[:D]))
-    for f in files[:D]:
+    for f in files[:params['D']]:
         content = f['content']
         for sentence in content.split("."):
             sentence = remove_punctuation(sentence).lower()
@@ -34,4 +33,4 @@ def get_music_bio(V, D, csv_path):
                 sent = [word2idx[w] if w in word2idx and w != ' ' else unk for w in sentence.split()]
                 sentences.append(sentence)
                 sents.append(sent)
-    return sentences, sents, word2idx, all_word_counts_idx
+    return sentences, sents, word2idx, all_word_counts_idx, params

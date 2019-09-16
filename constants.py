@@ -1,7 +1,3 @@
-
-
-# number of unique words
-vocab_size = len(word_to_idx) # total words
 # for each train process we will have context. For ex epecting word is in index 5 and window size is 3 go left 3 go right 3
 window_size = 10
 # number of iteration for updating weight matrix

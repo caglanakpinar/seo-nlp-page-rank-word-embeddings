@@ -1,13 +1,12 @@
 import datetime
 import functions
 import numpy as np
-import tf
+import tensorflow as tf
 import constants
 
 
 class train_init_model:
-    def __init__(self, randomly_ordered_positions,
-                 sentence, tf_inputs, prob_neg):
+    def __init__(self, randomly_ordered_positions, sentence, tf_inputs, prob_neg, vocab_size, session):
         self.cost = 0
         self.counter = 0
         self.inputs = []
@@ -18,9 +17,10 @@ class train_init_model:
         self.t0 = datetime.datetime.now()
         self.at_least_for_session_run = constants.at_least_for_session_run
         self.randomly_ordered_positions = randomly_ordered_positions
-        self.vocab_size = constants.vocab_size
+        self.vocab_size = vocab_size
         self.prob_neg = prob_neg
         self.tf_inputs = tf_inputs
+        self.session = session
 
     def min_range_of_inputs_collecting(self, pos):
         word = self.sentence[pos]
@@ -33,10 +33,10 @@ class train_init_model:
         self.counter += 1
 
     def session_run(self):
-        _, c = tf.session.run((self.tf_inputs['train_op'], self.tf_inputs['loss']),
-                              feed_dict={self.tf_inputs['tf_input']: self.inputs,
-                                         self.tf_input['tf_negword']: self.negwords,
-                                         self.tf_input['tf_context']: self.targets} )
+        _, c = self.session.run((self.tf_inputs['train_op'], self.tf_inputs['loss']),
+                                feed_dict={self.tf_inputs['tf_input']: self.inputs,
+                                         self.tf_inputs['tf_negword']: self.negwords,
+                                         self.tf_inputs['tf_context']: self.targets} )
         self.inputs = []
         self.negwords = []
         self.targets = []
