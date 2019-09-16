@@ -1,5 +1,5 @@
 from functions import remove_punctuation
-
+import pandas as pd
 
 def get_music_bio(V, D, csv_path):
     files = pd.read_csv(csv_path).to_dict('resutls')

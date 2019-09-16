@@ -1,23 +1,26 @@
 import datetime
 import functions
 import numpy as np
+import tf
+import constants
 
 
 class train_init_model:
-    def __init__(self, at_least_for_session_run, randomly_ordered_positions, window_size, sentence, vocab_size, prob_neg):
+    def __init__(self, randomly_ordered_positions,
+                 sentence, tf_inputs, prob_neg):
         self.cost = 0
         self.counter = 0
         self.inputs = []
         self.targets = []
         self.negwords = []
-        self.window_size = window_size
+        self.window_size = constants.window_size
         self.sentence = sentence
         self.t0 = datetime.datetime.now()
-        self.at_least_for_session_run = at_least_for_session_run
+        self.at_least_for_session_run = constants.at_least_for_session_run
         self.randomly_ordered_positions = randomly_ordered_positions
-        self.vocab_size = vocab_size
+        self.vocab_size = constants.vocab_size
         self.prob_neg = prob_neg
-        self.train_op =
+        self.tf_inputs = tf_inputs
 
     def min_range_of_inputs_collecting(self, pos):
         word = self.sentence[pos]
@@ -30,22 +33,18 @@ class train_init_model:
         self.counter += 1
 
     def session_run(self):
-        _, c = tf.session.run((self.train_op, loss), feed_dict={tf_input: train_m.inputs, tf_negword: train_m.negwords,
-                                                        tf_context: train_m.targets})
-
+        _, c = tf.session.run((self.tf_inputs['train_op'], self.tf_inputs['loss']),
+                              feed_dict={self.tf_inputs['tf_input']: self.inputs,
+                                         self.tf_input['tf_negword']: self.negwords,
+                                         self.tf_input['tf_context']: self.targets} )
         self.inputs = []
         self.negwords = []
         self.targets = []
         self.cost += c
 
-    def cost_plot(self):
-        if self.counter % 100 == 0:
-            sys.stdout.write("processed %s / %s\r" % (counter, len(sentences)))
-            sys.stdout.flush()
-
-    def compute_train_procces(self):
+    def compute_train_procces(self, ):
         for j, pos in enumerate(self.randomly_ordered_positions):
             self.min_range_of_inputs_collecting(pos)
             if len(self.inputs) >= self.at_least_for_session_run:
                 self.session_run()
-            train_m.counter += 1
+            self.counter += 1

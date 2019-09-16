@@ -52,3 +52,6 @@ def get_context(pos, wordidx, sentence, window_size):
     context = sentence[start:end_]
     context.remove(wordidx)
     return context
+
+def get_idx_to_word(word_to_idx):
+    return {i:w for w, i in word_to_idx.items()}

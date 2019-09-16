@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import functions
 import constants
+from train import  train_init_model
 
 def dot(A, B):
     C = A * B
@@ -10,9 +11,9 @@ def dot(A, B):
     return tf.reduce_sum(C, axis=1)
 
 
-def model(vocab_size, D):
-    W = np.random.randn(vocab_size, D).astype(np.float32)
-    V = np.random.randn(D, vocab_size).astype(np.float32)
+def get_model_parameters(V, D):
+    W = np.random.randn(V, D).astype(np.float32)
+    V = np.random.randn(D, V).astype(np.float32)
     tf_input = tf.placeholder(tf.int32, shape=(None,))
     tf_negword = tf.placeholder(tf.int32, shape=(None,))
     tf_context = tf.placeholder(tf.int32, shape=(None,))  # targets (context)
@@ -31,26 +32,30 @@ def model(vocab_size, D):
     # total loss
     loss = tf.reduce_mean(pos_loss) + tf.reduce_mean(neg_loss)
     train_op = tf.train.MomentumOptimizer(0.1, momentum=0.9).minimize(loss)
-    return  train_op
+    tf_inputs = {'tfW': tfW, 'tfV': tfV, 'loss': loss, 'tf_context': tf_context,
+                 'tf_negword': tf_negword, 'tf_input': tf_input, 'train_op': train_op}
+    return  tf_inputs
 
-def train_model():
+def train_model(sentences_idx, session, tf_inputs, prob_neg, p_drop):
     costs = []
-    for epoch in range(epochs):
-        shuffle_sentences(sentences_idx)
+    learning_rate = constants.learning_rate
+    learning_rate_delta = constants.learning_rate_delta
+    for epoch in range(constants.epochs):
+        functions.shuffle_sentences(sentences_idx)
 
         for sentence in sentences_idx:
-            sentence, randomly_ordered_positions = droping_word_with_p_negtive_sampling(sentence)
+            sentence, randomly_ordered_positions = functions.droping_word_with_p_negtive_sampling(sentence, p_drop)
             if len(sentence) < 2:
                 continue
-            train_m = train_init_model(at_least_for_session_run, randomly_ordered_positions, window_size, sentence)
+            train_m = train_init_model(randomly_ordered_positions, sentence, tf_inputs, prob_neg)
             train_m.compute_train_procces()
             learning_rate -= learning_rate_delta
             costs.append(train_m.cost)
-        W, VT = session.run((tfW, tfV))
+        W, VT = session.run((tf_inputs['tfW'], tf_inputs['tfV']))
         V = VT.T
-    return W, T
+    return W, V
 
-def learning_process(train_op, sentences, sentences_idx, all_word_counts_idx):
+def learning_process(sentences, sentences_idx, all_word_counts_idx, tf_inputs):
     session = tf.Session()
     init_op = tf.global_variables_initializer()
     session.run(init_op)
@@ -61,6 +66,6 @@ def learning_process(train_op, sentences, sentences_idx, all_word_counts_idx):
     print("total number of words in corpus:", total_words)
     prob_neg = functions.get_negative_sampling_distribution(sentences_idx, all_word_counts_idx)
     p_drop = 1 - np.sqrt(constants.threshold / prob_neg)
-    train_model()
+    return train_model(sentences_idx, session, tf_inputs, prob_neg, p_drop)
 
 
