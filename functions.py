@@ -55,3 +55,6 @@ def get_context(pos, wordidx, sentence, window_size):
 
 def get_idx_to_word(word_to_idx):
     return {i:w for w, i in word_to_idx.items()}
+
+def get_fist_word(words):
+    return words.split(" ")[0] if words.split(" ")[0] != 'the' else words.split(" ")[1]

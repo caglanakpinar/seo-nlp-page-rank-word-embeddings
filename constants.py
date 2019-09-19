@@ -1,7 +1,7 @@
 # for each train process we will have context. For ex epecting word is in index 5 and window size is 3 go left 3 go right 3
 window_size = 10
 # number of iteration for updating weight matrix
-epochs = 20
+epochs = 10
 # this is the learning rate how ever we are updating learning rate so we are initializin SGD
 learning_rate = 0.025
 final_learning_rate = 0.0001
